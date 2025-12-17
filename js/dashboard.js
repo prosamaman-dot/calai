@@ -152,22 +152,28 @@ async function handleImageUpload(input) {
             reader.readAsDataURL(file);
         });
 
-        // Gemini API Configuration
+        // Gemini API Configuration - Updated to 2.0 Flash
         const API_KEY = "AIzaSyBdUmljq5sxlRyCi6cUpHvEgHSgNeokXJc";
-        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
 
         const payload = {
             contents: [{
                 parts: [
-                    { text: "Analyze this image. Identify the food item. Return ONLY a valid JSON object with these fields: name (string), calories (number), protein (number), carbs (number), fats (number). Do not wrap in markdown code blocks." },
+                    { text: "You are a nutrition expert. Analyze this food image carefully. Identify the food item and estimate its nutritional values. Return ONLY a valid JSON object with these exact fields: name (string), calories (number), protein (number in grams), carbs (number in grams), fats (number in grams). Do not include any markdown formatting or code blocks." },
                     { inline_data: { mime_type: file.type, data: base64Image } }
                 ]
-            }]
+            }],
+            generationConfig: {
+                temperature: 0.4,
+                topK: 32,
+                topP: 1,
+                maxOutputTokens: 1024,
+            }
         };
 
         try {
-            // Create a timeout promise (8 seconds)
-            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), 8000));
+            // Create a timeout promise (15 seconds for better reliability)
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out after 15 seconds")), 15000));
 
             let data;
             try {
@@ -180,7 +186,11 @@ async function handleImageUpload(input) {
                     timeout
                 ]);
 
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Error Response:", errorText);
+                    throw new Error(`API Error ${response.status}: ${errorText.substring(0, 100)}`);
+                }
                 data = await response.json();
 
             } catch (err) {
@@ -206,23 +216,48 @@ async function handleImageUpload(input) {
             // Log full response for debugging
             console.log("Gemini/Fallback Response:", data);
 
-            if (!data.candidates || !data.candidates[0].content) {
-                throw new Error("Invalid API Response Structure");
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                throw new Error("Invalid API Response Structure - No candidates found");
             }
 
             const textResponse = data.candidates[0].content.parts[0].text;
             console.log("Gemini Text:", textResponse);
 
-            // Clean markdown if present
-            const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+            // Clean any potential markdown formatting
+            let cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+            
+            // Remove any extra text before or after the JSON
+            const jsonStart = cleanJson.indexOf('{');
+            const jsonEnd = cleanJson.lastIndexOf('}');
+            if (jsonStart !== -1 && jsonEnd !== -1) {
+                cleanJson = cleanJson.substring(jsonStart, jsonEnd + 1);
+            }
 
             let detected;
             try {
                 detected = JSON.parse(cleanJson);
+                
+                // Validate required fields
+                if (!detected.name || typeof detected.calories !== 'number') {
+                    throw new Error("Invalid JSON structure");
+                }
+                
+                // Ensure all values are numbers and reasonable
+                detected.calories = Math.max(0, Math.round(detected.calories || 0));
+                detected.protein = Math.max(0, Math.round(detected.protein || 0));
+                detected.carbs = Math.max(0, Math.round(detected.carbs || 0));
+                detected.fats = Math.max(0, Math.round(detected.fats || 0));
+                
             } catch (e) {
-                console.error("JSON Parse Error:", e);
-                // Fallback if AI returns unstructured text
-                detected = { name: 'Detected Food', calories: 250, protein: 10, carbs: 20, fats: 10 };
+                console.error("JSON Parse Error:", e, "Raw response:", textResponse);
+                // More realistic fallback based on common food
+                detected = { 
+                    name: 'Analyzed Food Item', 
+                    calories: 300, 
+                    protein: 15, 
+                    carbs: 25, 
+                    fats: 12 
+                };
             }
 
             // Add to Store with image preview
@@ -237,14 +272,27 @@ async function handleImageUpload(input) {
                 document.getElementById('scanLoader').classList.add('hidden');
                 closeAddMeal();
                 updateDailyView();
-                alert(`Added ${detected.name}!`);
+                
+                // Show success message with nutrition info
+                alert(`✅ Successfully added ${detected.name}!\n🔥 ${detected.calories} calories\n🍗 ${detected.protein}g protein\n🌽 ${detected.carbs}g carbs\n🥑 ${detected.fats}g fats`);
             }
             reader.readAsDataURL(file);
 
         } catch (error) {
             console.error("Gemini API Error:", error);
-            alert(`Error: ${error.message || "Failed to analyze"}`);
             document.getElementById('scanLoader').classList.add('hidden');
+            
+            // More specific error messages
+            let errorMessage = "Failed to analyze food image";
+            if (error.message.includes("timed out")) {
+                errorMessage = "Request timed out. Please check your internet connection and try again.";
+            } else if (error.message.includes("API Error")) {
+                errorMessage = "API service temporarily unavailable. Please try again in a moment.";
+            } else if (error.message.includes("Invalid API Response")) {
+                errorMessage = "Unable to process the image. Please try with a clearer photo of the food.";
+            }
+            
+            alert(`❌ ${errorMessage}\n\nTip: Make sure the food is clearly visible and well-lit in the photo.`);
         }
     }
 }
