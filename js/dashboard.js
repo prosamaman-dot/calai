@@ -162,78 +162,89 @@ async function handleImageUpload(input) {
                     { text: "Analyze this image. Identify the food item. Return ONLY a valid JSON object with these fields: name (string), calories (number), protein (number), carbs (number), fats (number). Do not wrap in markdown code blocks." },
                     { inline_data: { mime_type: file.type, data: base64Image } }
                 ]
-                    method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }),
-                timeout
-            ]);
-
-        if (!response.ok) throw new Error(`API Error: ${response.status}`);
-        data = await response.json();
-
-    } catch (err) {
-        console.warn("API Failed/Timed out, using fallback:", err);
-        // Fallback simulation
-        data = {
-            candidates: [{
-                content: {
-                    parts: [{
-                        text: JSON.stringify({
-                            name: 'Simulated Meal (Network/API Error)',
-                            calories: 400,
-                            protein: 20,
-                            carbs: 45,
-                            fats: 15
-                        })
-                    }]
-                }
             }]
         };
+
+        try {
+            // Create a timeout promise (8 seconds)
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), 8000));
+
+            let data;
+            try {
+                const response = await Promise.race([
+                    fetch(URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }),
+                    timeout
+                ]);
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                data = await response.json();
+
+            } catch (err) {
+                console.warn("API Failed/Timed out, using fallback:", err);
+                // Fallback simulation
+                data = {
+                    candidates: [{
+                        content: {
+                            parts: [{
+                                text: JSON.stringify({
+                                    name: 'Simulated Meal (Network/API Error)',
+                                    calories: 400,
+                                    protein: 20,
+                                    carbs: 45,
+                                    fats: 15
+                                })
+                            }]
+                        }
+                    }]
+                };
+            }
+
+            // Log full response for debugging
+            console.log("Gemini/Fallback Response:", data);
+
+            if (!data.candidates || !data.candidates[0].content) {
+                throw new Error("Invalid API Response Structure");
+            }
+
+            const textResponse = data.candidates[0].content.parts[0].text;
+            console.log("Gemini Text:", textResponse);
+
+            // Clean markdown if present
+            const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+
+            let detected;
+            try {
+                detected = JSON.parse(cleanJson);
+            } catch (e) {
+                console.error("JSON Parse Error:", e);
+                // Fallback if AI returns unstructured text
+                detected = { name: 'Detected Food', calories: 250, protein: 10, carbs: 20, fats: 10 };
+            }
+
+            // Add to Store with image preview
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                Store.addFood(currentUser, {
+                    ...detected,
+                    image: e.target.result
+                });
+
+                // Reset UI
+                document.getElementById('scanLoader').classList.add('hidden');
+                closeAddMeal();
+                updateDailyView();
+                alert(`Added ${detected.name}!`);
+            }
+            reader.readAsDataURL(file);
+
+        } catch (error) {
+            console.error("Gemini API Error:", error);
+            alert(`Error: ${error.message || "Failed to analyze"}`);
+            document.getElementById('scanLoader').classList.add('hidden');
+        }
     }
-
-    // Log full response for debugging
-    console.log("Gemini/Fallback Response:", data);
-
-    if (!data.candidates || !data.candidates[0].content) {
-        throw new Error("Invalid API Response Structure");
-    }
-
-    const textResponse = data.candidates[0].content.parts[0].text;
-    console.log("Gemini Text:", textResponse);
-
-    // Clean markdown if present
-    const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-
-    let detected;
-    try {
-        detected = JSON.parse(cleanJson);
-    } catch (e) {
-        console.error("JSON Parse Error:", e);
-        // Fallback if AI returns unstructured text
-        detected = { name: 'Detected Food', calories: 250, protein: 10, carbs: 20, fats: 10 };
-    }
-
-    // Add to Store with image preview
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        Store.addFood(currentUser, {
-            ...detected,
-            image: e.target.result
-        });
-
-        // Reset UI
-        document.getElementById('scanLoader').classList.add('hidden');
-        closeAddMeal();
-        updateDailyView();
-        alert(`Added ${detected.name}!`);
-    }
-    reader.readAsDataURL(file);
-
-} catch (error) {
-    console.error("Gemini API Error:", error);
-    alert(`Error: ${error.message || "Failed to analyze"}`);
-    document.getElementById('scanLoader').classList.add('hidden');
-}
-}
 }
