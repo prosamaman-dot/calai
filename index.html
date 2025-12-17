@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Calorie Tracker Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "on-primary": "#ffffff",
+                        "secondary": "#f3f4f6",
+                        "background-light": "#f2f4f7",
+                        "background-dark": "#0a0a0a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#171717",
+                        "accent-fire": "#FF6B00",
+                        "accent-carbs": "#EAB308",
+                        "accent-fats": "#84CC16",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "3xl": "2rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body
+    class="font-display bg-background-light dark:bg-background-dark text-neutral-900 dark:text-neutral-100 antialiased selection:bg-primary selection:text-neutral-900">
+    <div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="h-12 w-full shrink-0"></div>
+        <div class="flex flex-1 flex-col justify-between px-6 pb-6">
+            <div class="flex flex-col items-center pt-4">
+                <div
+                    class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 dark:bg-primary/10">
+                    <span class="material-symbols-outlined text-4xl text-primary font-bold">bolt</span>
+                </div>
+                <h1
+                    class="text-neutral-900 dark:text-white tracking-tight text-[32px] font-extrabold leading-tight text-center">
+                    Welcome Back!
+                </h1>
+                <p
+                    class="text-neutral-500 dark:text-neutral-400 text-base font-medium leading-normal pt-2 text-center max-w-[280px]">
+                    Let's hit those macros today and stay on track.
+                </p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="flex w-full flex-col gap-5 mt-8" onsubmit="handleLogin(event)">
+                <label class="flex flex-col gap-2">
+                    <span class="text-neutral-900 dark:text-neutral-200 text-sm font-semibold leading-normal ml-1">Email
+                        Address</span>
+                    <div class="relative flex items-center">
+                        <input id="email" required
+                            class="peer w-full rounded-2xl border-none ring-1 ring-neutral-200 bg-surface-light p-4 pr-12 text-base text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-primary dark:ring-neutral-800 dark:bg-surface-dark dark:text-white h-14"
+                            placeholder="Enter your email" type="email" />
+                        <div class="absolute right-4 text-neutral-400 peer-focus:text-primary transition-colors">
+                            <span class="material-symbols-outlined">mail</span>
+                        </div>
+                    </div>
+                </label>
+                <label class="flex flex-col gap-2">
+                    <span
+                        class="text-neutral-900 dark:text-neutral-200 text-sm font-semibold leading-normal ml-1">Password</span>
+                    <div class="relative flex items-center">
+                        <input id="password" required
+                            class="peer w-full rounded-2xl border-none ring-1 ring-neutral-200 bg-surface-light p-4 pr-12 text-base text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:ring-primary dark:ring-neutral-800 dark:bg-surface-dark dark:text-white h-14"
+                            placeholder="Enter your password" type="password" />
+                        <div
+                            class="absolute right-4 text-neutral-400 peer-focus:text-primary transition-colors cursor-pointer hover:text-neutral-600 dark:hover:text-neutral-200">
+                            <span class="material-symbols-outlined">visibility_off</span>
+                        </div>
+                    </div>
+                </label>
+
+                <div id="errorMessage" class="hidden text-red-500 text-sm text-center font-bold"></div>
+
+                <div class="flex justify-end">
+                    <a class="text-sm font-semibold text-neutral-500 hover:text-primary dark:text-neutral-400 transition-colors"
+                        href="#">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <button type="submit"
+                    class="mt-4 flex w-full items-center justify-center rounded-full bg-primary h-14 px-6 text-base font-bold text-on-primary shadow-lg hover:opacity-90 active:scale-[0.98] transition-all">
+                    Log In
+                </button>
+            </form>
+
+            <div class="flex flex-col gap-6 mt-8">
+                <div class="relative flex items-center gap-4">
+                    <div class="h-px flex-1 bg-neutral-200 dark:bg-neutral-800"></div>
+                    <p class="text-sm font-medium text-neutral-400">Or continue with</p>
+                    <div class="h-px flex-1 bg-neutral-200 dark:bg-neutral-800"></div>
+                </div>
+
+                <div class="flex items-center justify-center gap-1 pt-4 pb-4">
+                    <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Don't have an account?</p>
+                    <a class="text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+                        href="signup.html">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Check if already logged in
+        Auth.redirectIfAuthenticated();
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            const result = Auth.login(email, password);
+
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorMsg.textContent = result.message;
+                errorMsg.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+
+</html>

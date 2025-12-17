@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Recipe Discovery</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "on-primary": "#ffffff",
+                        "background-light": "#f2f4f7",
+                        "background-dark": "#0a0a0a",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#171717",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "3xl": "2rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-neutral-900 dark:text-white antialiased">
+    <div
+        class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-24 max-w-md mx-auto bg-background-light dark:bg-background-dark">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-6 pb-4">
+            <h1 class="text-3xl font-extrabold tracking-tight">Discover</h1>
+            <div class="size-10 rounded-full bg-white shadow-sm overflow-hidden p-0.5">
+                <img alt="User Avatar" class="h-full w-full object-cover rounded-full"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmdY037OKp58H0mgv5X8ycJkeFAL0753A9AgvHgKbgH_bS8kwDQLMOud5Mkm_DIuUx-0kHLm9sEIbGYYG91aqtnvvcVAyp7nppyNz6lPN2Ow_R-5Ukdxy0ZYvrYa42A9lOPt3GaGA67HN8jXD9TOFfWfdWd-ofMw7Kt8iZZ64Bwm0fMcQ_8vjE2fPweTa74vRCkGNzmopxdKFYWJjInOBS8_ln-d8gl_2WpP26mP_RYXYLuUcmrns58iL1XTt3LfLVxBeZNJyAjsM" />
+            </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="px-6 pb-6">
+            <div class="relative flex items-center">
+                <div class="absolute left-4 text-gray-400">
+                    <span class="material-symbols-rounded">search</span>
+                </div>
+                <input
+                    class="w-full rounded-3xl border-none bg-surface-light dark:bg-surface-dark py-4 pl-12 pr-4 text-base font-medium placeholder:text-gray-400 focus:ring-2 focus:ring-primary shadow-sm h-14"
+                    placeholder="Search recipes, ingredients..." type="text" />
+            </div>
+        </div>
+
+        <!-- Categories (Chips) -->
+        <div class="flex gap-2 px-6 overflow-x-auto no-scrollbar pb-2">
+            <button
+                class="flex h-10 shrink-0 items-center justify-center px-6 rounded-full bg-primary text-white shadow-lg shadow-black/10 transition-transform active:scale-95">
+                <span class="text-sm font-bold">All</span>
+            </button>
+            <button
+                class="flex h-10 shrink-0 items-center justify-center px-6 rounded-full bg-surface-light dark:bg-surface-dark text-neutral-900 border border-transparent hover:border-gray-200 transition-transform active:scale-95">
+                <span class="text-sm font-bold">Breakfast</span>
+            </button>
+            <button
+                class="flex h-10 shrink-0 items-center justify-center px-6 rounded-full bg-surface-light dark:bg-surface-dark text-neutral-900 border border-transparent hover:border-gray-200 transition-transform active:scale-95">
+                <span class="text-sm font-bold">Lunch</span>
+            </button>
+            <button
+                class="flex h-10 shrink-0 items-center justify-center px-6 rounded-full bg-surface-light dark:bg-surface-dark text-neutral-900 border border-transparent hover:border-gray-200 transition-transform active:scale-95">
+                <span class="text-sm font-bold">Dinner</span>
+            </button>
+        </div>
+
+        <!-- Recipe of the Day -->
+        <div class="flex flex-col px-6 pt-6">
+            <div class="flex items-center justify-between pb-4">
+                <h3 class="text-xl font-bold">Recipe of the Day</h3>
+                <span class="text-gray-400 text-sm font-bold cursor-pointer hover:text-primary">View All</span>
+            </div>
+
+            <div
+                class="relative w-full aspect-[4/3] rounded-[32px] overflow-hidden shadow-sm group cursor-pointer bg-white">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCci5iSsqS04VxNnOypta0BQDb8mIaPcT8jJrbysg-gN2aTHGOgllocekQrVKpxCbjwkntZ8mHrH8L4-P8lBmGAmjbq12AVQksFMaroBTv6lKz6Ws4KSUiDuWCz8sm1abYVqgFKVDrHLt8AQFv9bJBXPClh05O4lGGNzlS0AOUf2YR3DFVhcOEcCU9LJZt_Bj0ykZ9k6JkqkqPxVmHlvhloXYUaoYsGsHLwotPuzrFcvOJ69spcLMc7NhG1s8TTKxe5h4LSlT49BkM"
+                    class="w-full h-full object-cover" alt="Avocado Toast">
+                <div
+                    class="absolute top-4 right-4 bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 flex items-center gap-1 shadow-sm">
+                    <span class="material-symbols-rounded text-orange-500 text-sm">local_fire_department</span>
+                    <span class="text-xs font-bold">350 kcal</span>
+                </div>
+                <div
+                    class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
+                    <h4 class="text-xl font-bold mb-1">Avocado Toast Supreme</h4>
+                    <div class="flex items-center gap-2 text-sm font-medium opacity-90">
+                        <span class="material-symbols-rounded text-sm">schedule</span> 10 min • Breakfast
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Section -->
+        <div class="flex flex-col px-6 pt-8">
+            <h3 class="text-xl font-bold pb-4">Recommended for you</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Card 1 -->
+                <div
+                    class="bg-surface-light dark:bg-surface-dark p-3 rounded-[24px] shadow-sm cursor-pointer hover:scale-[1.02] transition-transform">
+                    <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-3">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOrLW_UZGFyQrQSKbizUcpPmHL3Gno7qlBsGmk8aQO80YLgXWnXvGTZ5Jw_FEQTu0aF90j0U2z_GgRfxj-iuQnDkMYGMHkDU7OK8QaP8tsGHaDGUeZi8U9Il-T3PnzypEygxWgZrDUY0VjzLyZhIK6uOhoAo5elKxNUKqg22Nira1xgjNWlQUwt-RVMLAR6muXV0RNeVv7fgmKFa9IiYO5lfWN6pFtLpgFxMcoBq_u_-gstluhDtI2Fc1mdmcy7BYdKQqyuXJKa4k"
+                            class="w-full h-full object-cover">
+                        <button
+                            class="absolute top-2 right-2 size-8 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg text-white">favorite</span>
+                        </button>
+                    </div>
+                    <h4 class="font-bold text-sm truncate">Grilled Salmon Salad</h4>
+                    <p class="text-xs text-gray-400 mt-1">450 kcal • 20 min</p>
+                </div>
+                <!-- Card 2 -->
+                <div
+                    class="bg-surface-light dark:bg-surface-dark p-3 rounded-[24px] shadow-sm cursor-pointer hover:scale-[1.02] transition-transform">
+                    <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-3">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB34fWEaEqNLJA5rYdpT2eudODcsuWNVg487jN5p5AW0jXP2xVqyswahWsyMjMdeGEKM_5T4ApcJaPtiKsSIWpObSBoIi2EbhGIF8p-_H4ouQnegKjVgc72SEJd40jP7tvTnhMISzT1U95I8h2-AoRx2NR7lOgigbwdFjo4mLwV17BOu-t_y2evM6xPM7CSDhbjCj0oUs7fD35AH7Nqp2Dh4UQ9mOnLE_YIqTybkVwzMh_IXXXmRu2nggYaY0a6v3ivIyIdFlDixUE"
+                            class="w-full h-full object-cover">
+                        <button
+                            class="absolute top-2 right-2 size-8 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center">
+                            <span class="material-symbols-rounded text-lg text-white">favorite</span>
+                        </button>
+                    </div>
+                    <h4 class="font-bold text-sm truncate">Quinoa Power Bowl</h4>
+                    <p class="text-xs text-gray-400 mt-1">320 kcal • 15 min</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav
+        class="fixed bottom-0 bg-surface-light dark:bg-surface-dark w-full px-6 py-4 pb-8 flex justify-between items-center rounded-t-[32px] shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] z-50 max-w-md mx-auto left-0 right-0">
+        <a href="discovery.html" class="flex flex-col items-center gap-1 text-black">
+            <span class="material-symbols-rounded text-2xl">grid_view</span>
+            <span class="size-1 bg-black rounded-full"></span>
+        </a>
+        <a href="dashboard.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-black transition-colors">
+            <span class="material-symbols-rounded text-2xl">show_chart</span>
+        </a>
+        <a href="profile.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-black transition-colors">
+            <span class="material-symbols-rounded text-2xl">person</span>
+        </a>
+    </nav>
+
+    <script src="js/auth.js"></script>
+    <script>
+        Auth.requireAuth();
+    </script>
+</body>
+
+</html>
